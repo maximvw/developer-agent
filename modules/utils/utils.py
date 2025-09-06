@@ -1,45 +1,15 @@
-import os
-from functools import wraps
-from typing import List, Callable
+from typing import List
 from langchain_core.tools import StructuredTool
 from langchain_core.messages import HumanMessage, BaseMessage
 
 from modules.settings.agent_config import settings
 
 
-REAL_WORKSPACE_PATH = os.path.realpath(settings.WORKSPACE_DIR)
-os.makedirs(REAL_WORKSPACE_PATH, exist_ok=True)
-
-def _get_safe_path(path: str) -> str:
-    """
-    "Страж": преобразует относительный путь в безопасный абсолютный путь внутри workspace.
-    Предотвращает выход за пределы песочницы (атаки типа Path Traversal).
-    """
-    absolute_path = os.path.join(REAL_WORKSPACE_PATH, path)
-
-    real_path = os.path.realpath(absolute_path)
-    
-    if not real_path.startswith(REAL_WORKSPACE_PATH):
-        raise ValueError(f"Попытка доступа за пределы рабочей директории ('{settings.WORKSPACE_DIR}') запрещена.")
-    
-    return real_path
-
-
-def with_safe_path(get_safe_path: Callable[[str], str] = _get_safe_path):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(path: str, *args, **kwargs):
-            safe_path = get_safe_path(path)
-            return func(safe_path, *args, **kwargs)
-        return wrapper
-    return decorator
-
-
 def snake_to_pascal(name: str) -> str:
     return ''.join(word.capitalize() for word in name.split('_'))
 
 
-def get_structured_tools(tools, names, args_schemas, descriptions) -> list[StructuredTool]:
+def get_structured_tools(tools, names, args_schemas, descriptions) -> List[StructuredTool]:
     """Возвращает список инструментов StructuredTool."""
 
     if not (len(tools) == len(names) == len(args_schemas) == len(descriptions)):
