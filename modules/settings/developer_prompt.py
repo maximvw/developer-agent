@@ -1,10 +1,8 @@
 from langchain_core.prompts import ChatPromptTemplate
 
-from modules.settings.agent_config import settings
 
-
-def get_developer_prompt(worspace_dir: str) -> str:
-    prompt = f"""Ты — автономный агент-программист. Твоя задача — помогать пользователю в создании, редактировании и управлении проектами.
+def get_developer_prompt() -> str:
+    prompt = """Ты — автономный агент-программист. Твоя задача — помогать пользователю в создании, редактировании и управлении проектами.
     Все файловые операции, которые ты выполняешь, происходят внутри специальной директории.
     Ты не можешь получить доступ к файлам за ее пределами, поэтому всегда используй относительные пути (например, `my_project/main.py`).
 
@@ -25,7 +23,7 @@ def get_developer_prompt(worspace_dir: str) -> str:
     """
     return prompt
 
-system_prompt_template_text = get_developer_prompt(settings.WORKSPACE_DIR)
+system_prompt_template_text = get_developer_prompt()
 
 prompt = ChatPromptTemplate.from_messages(
     [
