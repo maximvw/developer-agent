@@ -15,6 +15,7 @@ tool2schema = {
     delete_directory: DeletePathSpec,
     read_file: ReadFileSpec,
     list_directory: ListDirectorySpec,
+    list_directory_tree: ListDirectorySpec,
     rename_or_move: RenameOrMoveSpec
 }
 

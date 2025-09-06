@@ -21,7 +21,8 @@ def __get_safe_path(path: str) -> str:
     return real_path
 
 def write_file(path: str, content: str) -> str:
-    """Создает или полностью перезаписывает файл."""
+    """Создает или полностью перезаписывает файл по пути path."""
+    
     try:
         safe_path = __get_safe_path(path)
         os.makedirs(os.path.dirname(safe_path), exist_ok=True)
@@ -32,8 +33,10 @@ def write_file(path: str, content: str) -> str:
         return f"Ошибка при записи файла: {e}"
 
 def create_directory(path: str) -> str:
-    """Создает новую директорию (папку) по указанному пути.
-       Создает все необходимые родительские директории."""
+    """
+        Создает новую директорию (папку) по указанному пути path.
+        Создает все необходимые родительские директории.
+    """
     try:
         safe_path = __get_safe_path(path)
         if os.path.exists(safe_path):
@@ -45,8 +48,10 @@ def create_directory(path: str) -> str:
 
 
 def append_to_file(path: str, content: str) -> str:
-    """Добавляет содержимое в КОНЕЦ существующего файла.
-       Не изменяет существующий контент."""
+    """
+        Добавляет содержимое в КОНЕЦ существующего файла по пути path.
+        Не изменяет существующий контент.
+    """
     try:
         safe_path = __get_safe_path(path)
         if not os.path.exists(safe_path):
@@ -59,7 +64,7 @@ def append_to_file(path: str, content: str) -> str:
 
 
 def delete_file(path: str) -> str:
-    """Удаляет один файл."""
+    """Удаляет один файл по пути path."""
     try:
         safe_path = __get_safe_path(path)
         if os.path.isdir(safe_path):
@@ -71,8 +76,9 @@ def delete_file(path: str) -> str:
     except Exception as e:
         return f"Ошибка при удалении файла: {e}"
 
+
 def delete_directory(path: str) -> str:
-    """Удаляет директорию и все ее содержимое."""
+    """Удаляет директорию по пути path и все ее содержимое."""
     try:
         safe_path = __get_safe_path(path)
         if not os.path.isdir(safe_path):
@@ -86,7 +92,7 @@ def delete_directory(path: str) -> str:
 
 
 def read_file(path: str) -> str:
-    """Читает содержимое файла."""
+    """Читает содержимое файла по пути path."""
     try:
         safe_path = __get_safe_path(path)
         with open(safe_path, "r", encoding="utf-8") as f:
@@ -100,8 +106,8 @@ def read_file(path: str) -> str:
 
 def list_directory(path: str = ".") -> str:
     """
-    Показывает содержимое директории.
-    Чтобы посмотреть корневую директорию, используйте параметр пустым.
+        Показывает содержимое директории по пути path.
+        Чтобы посмотреть корневую директорию, используйте параметр пустым.
     """
     try:
         safe_path = __get_safe_path(path)
@@ -116,8 +122,41 @@ def list_directory(path: str = ".") -> str:
         return f"Ошибка при просмотре директории: {e}"
 
 
+def list_directory_tree(path: str = ".", prefix: str = "") -> str:
+    """
+        Показывает дерево директорий и файлов по пути path.
+    """
+    try:
+        safe_path = __get_safe_path(path)  # ваша функция для безопасного пути
+        if not os.path.isdir(safe_path):
+            return f"Ошибка: '{path}' не является директорией."
+        
+        entries = sorted(os.listdir(safe_path))
+        if not entries:
+            return f"{prefix}[Пусто] {path}"
+        
+        lines = [f"{prefix}{os.path.basename(safe_path) or path}/"]
+        for index, entry in enumerate(entries):
+            full_path = os.path.join(safe_path, entry)
+            connector = "└── " if index == len(entries) - 1 else "├── "
+            if os.path.isdir(full_path):
+                lines.append(f"{prefix}{connector}{entry}/")
+                extension = "    " if index == len(entries) - 1 else "│   "
+                lines.append(list_directory_tree(full_path, prefix + extension))
+            else:
+                lines.append(f"{prefix}{connector}{entry}")
+        
+        return "\n".join(lines)
+    
+    except Exception as e:
+        return f"Ошибка при просмотре директории: {e}"
+
+
 def rename_or_move(source_path: str, destination_path: str) -> str:
-    """Переименовывает (или перемещает) файл или директорию."""
+    """
+        Переименовывает (или перемещает) файл или директорию 
+        по пути path -> destination_path.
+    """
     try:
         safe_source = __get_safe_path(source_path)
         safe_dest = __get_safe_path(destination_path)
