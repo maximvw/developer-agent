@@ -6,9 +6,9 @@ from modules.settings.agent_config import settings
 REAL_WORKSPACE_PATH = os.path.realpath(settings.WORKSPACE_DIR)
 os.makedirs(REAL_WORKSPACE_PATH, exist_ok=True)
 
-def __get_safe_path(path: str) -> str:
+def _get_safe_path(path: str) -> str:
     """
-    "Страж": преобразует относительный путь в безопасный абсолютный путь внутри "workspace".
+    "Страж": преобразует относительный путь в безопасный абсолютный путь внутри settings.WORKSPACE_DIR.
     Предотвращает выход за пределы песочницы (атаки типа Path Traversal).
     """
     absolute_path = os.path.join(REAL_WORKSPACE_PATH, path)
@@ -24,7 +24,7 @@ def write_file(path: str, content: str) -> str:
     """Создает или полностью перезаписывает файл по пути path."""
     
     try:
-        safe_path = __get_safe_path(path)
+        safe_path = _get_safe_path(path)
         os.makedirs(os.path.dirname(safe_path), exist_ok=True)
         with open(safe_path, "w", encoding="utf-8") as f:
             f.write(content)
@@ -38,9 +38,9 @@ def create_directory(path: str) -> str:
         Создает все необходимые родительские директории.
     """
     try:
-        safe_path = __get_safe_path(path)
+        safe_path = _get_safe_path(path)
         if os.path.exists(safe_path):
-            return f"Информация: Директория '{path}' уже существует в workspace."
+            return f"Информация: Директория '{path}' уже существует."
         os.makedirs(safe_path)
         return f"Директория '{path}' успешно создана."
     except Exception as e:
@@ -53,7 +53,7 @@ def append_to_file(path: str, content: str) -> str:
         Не изменяет существующий контент.
     """
     try:
-        safe_path = __get_safe_path(path)
+        safe_path = _get_safe_path(path)
         if not os.path.exists(safe_path):
             return f"Ошибка: Файл '{path}' не найден."
         with open(safe_path, "a", encoding="utf-8") as f:
@@ -66,7 +66,7 @@ def append_to_file(path: str, content: str) -> str:
 def delete_file(path: str) -> str:
     """Удаляет один файл по пути path."""
     try:
-        safe_path = __get_safe_path(path)
+        safe_path = _get_safe_path(path)
         if os.path.isdir(safe_path):
             return f"Ошибка: '{path}' - это директория. Используйте DeleteDirectory."
         os.remove(safe_path)
@@ -80,7 +80,7 @@ def delete_file(path: str) -> str:
 def delete_directory(path: str) -> str:
     """Удаляет директорию по пути path и все ее содержимое."""
     try:
-        safe_path = __get_safe_path(path)
+        safe_path = _get_safe_path(path)
         if not os.path.isdir(safe_path):
             return f"Ошибка: '{path}' - это файл. Используйте DeleteFile."
         shutil.rmtree(safe_path)
@@ -94,7 +94,7 @@ def delete_directory(path: str) -> str:
 def read_file(path: str) -> str:
     """Читает содержимое файла по пути path."""
     try:
-        safe_path = __get_safe_path(path)
+        safe_path = _get_safe_path(path)
         with open(safe_path, "r", encoding="utf-8") as f:
             content = f.read()
         return f"Содержимое файла '{path}':\n\n{content}"
@@ -110,7 +110,7 @@ def list_directory(path: str = ".") -> str:
         Чтобы посмотреть корневую директорию, используйте параметр пустым.
     """
     try:
-        safe_path = __get_safe_path(path)
+        safe_path = _get_safe_path(path)
         if not os.path.isdir(safe_path):
             return f"Ошибка: '{path}' не является директорией."
         entries = os.listdir(safe_path)
@@ -127,7 +127,7 @@ def list_directory_tree(path: str = ".", prefix: str = "") -> str:
         Показывает дерево директорий и файлов по пути path.
     """
     try:
-        safe_path = __get_safe_path(path)  # ваша функция для безопасного пути
+        safe_path = _get_safe_path(path)  # ваша функция для безопасного пути
         if not os.path.isdir(safe_path):
             return f"Ошибка: '{path}' не является директорией."
         
@@ -158,8 +158,8 @@ def rename_or_move(source_path: str, destination_path: str) -> str:
         по пути path -> destination_path.
     """
     try:
-        safe_source = __get_safe_path(source_path)
-        safe_dest = __get_safe_path(destination_path)
+        safe_source = _get_safe_path(source_path)
+        safe_dest = _get_safe_path(destination_path)
         if not os.path.exists(safe_source):
             return f"Ошибка: Исходный путь '{source_path}' не найден."
         if os.path.exists(safe_dest):
