@@ -6,8 +6,12 @@ class WriteFileSpec(BaseModel):
     path: str = Field(..., description="Путь к файлу.")
     content: str = Field(..., description="Содержимое файла.")
 
+
 class CreateDirectorySpec(BaseModel):
-    path: str = Field(..., description="Путь к директории, которую нужно создать. Может включать родительские папки.")
+    path: str = Field(
+        ...,
+        description="Путь к директории, которую нужно создать. Может включать родительские папки.",
+    )
 
 
 class AppendToFileSpec(BaseModel):
@@ -24,7 +28,9 @@ class ReadFileSpec(BaseModel):
 
 
 class ListDirectorySpec(BaseModel):
-    path: Optional[str] = Field(default=".", description="Путь к директории. По умолчанию - корень.")
+    path: Optional[str] = Field(
+        default=".", description="Путь к директории. По умолчанию - корень."
+    )
 
 
 class RenameOrMoveSpec(BaseModel):

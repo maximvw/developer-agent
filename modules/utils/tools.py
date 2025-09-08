@@ -6,6 +6,7 @@ from modules.settings.agent_config import settings
 REAL_WORKSPACE_PATH = os.path.realpath(settings.WORKSPACE_DIR)
 os.makedirs(REAL_WORKSPACE_PATH, exist_ok=True)
 
+
 def _get_safe_path(path: str) -> str:
     """
     "Страж": преобразует относительный путь в безопасный абсолютный путь внутри settings.WORKSPACE_DIR.
@@ -14,15 +15,18 @@ def _get_safe_path(path: str) -> str:
     absolute_path = os.path.join(REAL_WORKSPACE_PATH, path)
 
     real_path = os.path.realpath(absolute_path)
-    
+
     if not real_path.startswith(REAL_WORKSPACE_PATH):
-        raise ValueError(f"Попытка доступа за пределы рабочей директории ('{settings.WORKSPACE_DIR}') запрещена.")
+        raise ValueError(
+            f"Попытка доступа за пределы рабочей директории ('{settings.WORKSPACE_DIR}') запрещена."
+        )
 
     return real_path
 
+
 def write_file(path: str, content: str) -> str:
     """Создает или полностью перезаписывает файл по пути path."""
-    
+
     try:
         safe_path = _get_safe_path(path)
         os.makedirs(os.path.dirname(safe_path), exist_ok=True)
@@ -32,10 +36,11 @@ def write_file(path: str, content: str) -> str:
     except Exception as e:
         return f"Ошибка при записи файла: {e}"
 
+
 def create_directory(path: str) -> str:
     """
-        Создает новую директорию (папку) по указанному пути path.
-        Создает все необходимые родительские директории.
+    Создает новую директорию (папку) по указанному пути path.
+    Создает все необходимые родительские директории.
     """
     try:
         safe_path = _get_safe_path(path)
@@ -49,8 +54,8 @@ def create_directory(path: str) -> str:
 
 def append_to_file(path: str, content: str) -> str:
     """
-        Добавляет содержимое в КОНЕЦ существующего файла по пути path.
-        Не изменяет существующий контент.
+    Добавляет содержимое в КОНЕЦ существующего файла по пути path.
+    Не изменяет существующий контент.
     """
     try:
         safe_path = _get_safe_path(path)
@@ -106,8 +111,8 @@ def read_file(path: str) -> str:
 
 def list_directory(path: str = ".") -> str:
     """
-        Показывает содержимое директории по пути path.
-        Чтобы посмотреть корневую директорию, используйте параметр пустым.
+    Показывает содержимое директории по пути path.
+    Чтобы посмотреть корневую директорию, используйте параметр пустым.
     """
     try:
         safe_path = _get_safe_path(path)
@@ -116,7 +121,10 @@ def list_directory(path: str = ".") -> str:
         entries = os.listdir(safe_path)
         if not entries:
             return f"Директория '{path}' пуста."
-        output = f"Содержимое директории '{path}':\n" + "\n".join(f"- {'[D]' if os.path.isdir(os.path.join(safe_path, entry)) else '[F]'} {entry}" for entry in entries)
+        output = f"Содержимое директории '{path}':\n" + "\n".join(
+            f"- {'[D]' if os.path.isdir(os.path.join(safe_path, entry)) else '[F]'} {entry}"
+            for entry in entries
+        )
         return output
     except Exception as e:
         return f"Ошибка при просмотре директории: {e}"
@@ -124,17 +132,17 @@ def list_directory(path: str = ".") -> str:
 
 def list_directory_tree(path: str = ".", prefix: str = "") -> str:
     """
-        Показывает дерево директорий и файлов по пути path.
+    Показывает дерево директорий и файлов по пути path.
     """
     try:
         safe_path = _get_safe_path(path)  # ваша функция для безопасного пути
         if not os.path.isdir(safe_path):
             return f"Ошибка: '{path}' не является директорией."
-        
+
         entries = sorted(os.listdir(safe_path))
         if not entries:
             return f"{prefix}[Пусто] {path}"
-        
+
         lines = [f"{prefix}{os.path.basename(safe_path) or path}/"]
         for index, entry in enumerate(entries):
             full_path = os.path.join(safe_path, entry)
@@ -145,17 +153,17 @@ def list_directory_tree(path: str = ".", prefix: str = "") -> str:
                 lines.append(list_directory_tree(full_path, prefix + extension))
             else:
                 lines.append(f"{prefix}{connector}{entry}")
-        
+
         return "\n".join(lines)
-    
+
     except Exception as e:
         return f"Ошибка при просмотре директории: {e}"
 
 
 def rename_or_move(source_path: str, destination_path: str) -> str:
     """
-        Переименовывает (или перемещает) файл или директорию 
-        по пути path -> destination_path.
+    Переименовывает (или перемещает) файл или директорию
+    по пути path -> destination_path.
     """
     try:
         safe_source = _get_safe_path(source_path)

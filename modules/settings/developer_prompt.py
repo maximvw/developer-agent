@@ -1,7 +1,6 @@
 from langchain_core.prompts import ChatPromptTemplate
 
 
-
 system_prompt = """
     Ты — автономный агент-программист. Твоя задача — помогать пользователю в создании, редактировании и управлении проектами.
     Все файловые операции, которые ты выполняешь, происходят внутри специальной директории.
@@ -24,8 +23,5 @@ system_prompt = """
     """
 
 prompt = ChatPromptTemplate.from_messages(
-    [
-        ("system", system_prompt),
-        ("placeholder", "{messages}")
-    ]
+    [("system", system_prompt), ("placeholder", "{messages}")]
 )
